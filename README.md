@@ -118,7 +118,7 @@ Relevant fdisk output for this disk is:
 
  5. Save `grub.cfg` file
 
-The autobackup setup of Clonezilla is not complete.
+The autobackup setup of Clonezilla is now complete.
 
 ### Target computer preparation
 
