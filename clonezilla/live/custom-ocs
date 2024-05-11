@@ -1,0 +1,133 @@
+#!/usr/bin/perl
+
+# Find and read the backup configuration file
+my $TRUE = (1==1);
+my $FALSE = !$TRUE;
+
+my $configFile = "/home/config/backup.conf";
+my $backupFolder = "/home/partimag";
+my $failed = $FALSE;
+my $failedMsg = "";
+my @config;
+my @uuids;
+my $found = $FALSE;
+my $saveDisk = $TRUE;
+my $target = "";
+my $backupDisk;
+
+printf "Clonezilla backup by local backup configuration file\n";
+printf "====================================================\n";
+printf "Inspecting hardware configration... ";
+@uuids = `sudo blkid`;
+my $hw = `sudo lshw -quiet -class system | grep configuration | grep uuid`;
+$hw =~ /uuid=([0-9|a-f]{8}-[0-9|a-f]{4}-[0-9|a-f]{4}-[0-9|a-f]{4}-[0-9|a-f]{12})/i;
+my $machine = $1;
+printf "done\nHardware uuid=$machine\n";
+system("sudo mkdir /home/config >> /dev/null 2>&1");
+
+foreach $uuid (@uuids) {
+    $uuid =~ /^(\/dev\/.+):/i;
+    $disk = $1;
+    printf "Inspecting partition: $disk...";
+    system("sudo umount /home/config >> /dev/null 2>&1");
+    system("sudo umount $disk >> /dev/null 2>&1");
+    if (system("sudo mount $disk /home/config >> /dev/null 2>&1") == 0) {
+        if (-e $configFile ) {
+    	    printf " found backup configration file\n";
+	    unless ( open(FILE, "<", $configFile) ) {
+    		printf "Error opening backup configration file:  $!\n";
+	    } else {
+		@config = <FILE>;
+		close FILE;
+	
+		chomp $config[0];
+		$backupDisk = $config[0];
+		if ($backupDisk =~ /^$machine/i || $uuid =~ /$backupDisk/i) {
+		    printf "Backup uuid matches this hardware or disk: $backupDisk\n";
+		    system("sudo umount /home/config >> /dev/null 2>&1");
+		    $found = $TRUE;
+		    last;
+		} 
+		else {
+		    printf "Backup uuid=$backupDisk\nDoes not match that of this hardware...";
+		}
+	    }
+        }
+    }
+    print " skipped.\n";
+}
+
+if ($found) {
+    if (-d $backupFolder) {
+	$tmp = `mount | grep $backupFolder`;
+	if ($tmp =~ $backupFolder) {
+	    system("sudo umount $backupFolder >> /dev/null 2>&1");
+	}
+    } else {
+	system("sudo mkdir $backupFolder >> /dev/null 2>&1");
+    }
+    chomp $config[1];
+    if (system("sudo mount -U $config[1] $backupFolder") == 0) {
+	printf "Mounted $backupFolder: ";
+	printf `sudo mount | grep $backupFolder`; 
+	chomp $config[2];
+	my $params = $config[2];
+	if ($params =~ "savedisk") {
+	    $saveDisk = $TRUE;
+	} elsif ($params =~ "saveparts") {
+	    $saveDisk = $FALSE;
+	} else {
+	    $failed = $TRUE;
+	    $failedMsg = "Unable to determine type of backup: disk or partition";
+	}
+    } else {
+	$failed = $TRUE;
+	$failedMsg = "Unable to mount $backupFolder";
+    }
+    unless ($failed) {
+	for ($i = 3; $i <= $#config; $i++) {
+	    chomp $config[$i];
+	    $uuid = $config[$i];
+#printf "looking at partition=$uuid\n";
+	    $disk = "";
+	    $tmp = `ls -l /dev/disk/by-uuid/ | grep -i $uuid`;
+#printf "by uuid returned $tmp\n";
+	    $tmp =~ /\.\.\/\.\.\/(.+)/i;
+	    $disk = $1;
+	    if ($saveDisk && length $disk) {
+		$lspath = `ls -l /dev/disk/by-path/ | grep -i $disk`;
+		$lspath =~ /.*:\d\d (.+)-part.*/;
+		$pth = $1;
+		$disk = "";
+#printf "by path = $pth\n";
+		if (length $pth) {
+		    $lspath = `ls -l /dev/disk/by-path/ | grep -i $pth`;
+		    $lspath =~ /.* -> \.\.\/\.\.\/(.+)/;
+		    $disk = $1;
+		}
+	    }
+#printf "source disk=$disk\n";
+	    if (length $disk) {
+		printf "uuid $uuid points to $disk\n";
+		$target .= ' ' . $disk;
+	    }
+	}
+	if (length $target) {
+	    $cmd = "ocs-sr " . $config[2] . $target;
+	    printf "Running Clonezilla with '$cmd'\n";
+	    exec($cmd);
+	}
+	$failed = $TRUE;
+	$failedMsg = "Unable to determine backup target partition(s)";
+    }
+} else {
+    $failed = $TRUE;
+    $failedMsg = "Backup configration file was not found";
+}
+
+if ($failed) {
+    printf "%s\n", $failedMsg;
+    printf "\nLaunching Interactive Clonezilla in 10 seconds...\n";
+    system("sleep 10");
+    exec("ocs-live-general");
+}
