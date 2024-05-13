@@ -127,21 +127,6 @@ The autobackup setup of Clonezilla is now complete.
 Backup configuration file tells automatic Clonezilla what kind of backup needs to be performed
 A sample backup file is below:
 
-		# Backup configuration file
-		# should be available in the root of /home/config (mounted from the kernel startup parameters).
-		# Format
-		# line 1: Machine_UUID
-		# line 2: home_partimag_partition_uuid
-		# line 3: ocs-sr backup options string without target device(s)/partition(s)
-		# line 4: target_uuid1
-		# line 5: target_uuid2
-		# line N: target_uuidN
-		#
-		# Where
-		#	Machine_UUID  is the uuid obtained via 'lshw -quiet | grep configuration | grep uuid
-		#	home_partimag_partition_uuid  is UUID of the partition which is going to be mounted to /home/partimag for backup
-		#	target_uuidN  is uuid of the partition to be backed up (in case of saveparts), or disk to be backed up 
-
 		4c4c4544-0054-3610-804a-c7c04f444b33
 		7B0DFCE74B228860
 		-q2 -j2 -nogui -z1p -i 2000000 -p poweroff savedisk xps15dev_system
@@ -149,21 +134,20 @@ A sample backup file is below:
  
 Let's review it line by line
 
-Line 1 - hardware ID of the target machine:
+##### Line 1 - hardware ID of the target machine:
 
 		00020003-0004-0005-0006-000700080009
 
 This ID could be looked up with this command: `sudo lshw -quiet -class system | grep configuration | grep uuid`
 
 		$ sudo lshw -quiet -class system | grep configuration | grep uuid
-		[sudo] password for anatoli:
     configuration: boot=normal chassis=desktop family=Default string sku=Default string uuid=00020003-0004-0005-0006-000700080009
 
 The easiest way to build `backup.conf` file is to boot into interactive Clonezilla, drop into shell instead of starting the backup and look it up there. 
 Clonezilla checks if correct configuration file has been found and ignores the ones with unmatched hardware IDs
 
 
-Line 2 - UUID of the partition to store back up file on
+##### Line 2 - UUID of the partition to store back up file on
 
 		7B0DFCE74B228860
 
@@ -172,7 +156,7 @@ Typically this is the partition UUID of the DATA partition of the 2TB backup dri
 Note that `7B0DFCE74B228860` is UUID of an exFAT partition (windows). Linux ext4 partition UUID will look like `38d9e8cd-deda-4735-ad97-a795665e77fe`
 
 
-Line 3 - Clonezilla command line arguments
+##### Line 3 - Clonezilla command line arguments
 
 		-q2 -j2 -nogui -z1p -i 2000000 -p poweroff savedisk xps15dev_system
 
@@ -189,7 +173,7 @@ One by one:
 
 The esiest way to build this line is to run an interactive Clonezilla session, select all desired parameters and save the resulting command line.
 
-Line 4, 5, 6 and so on
+##### Line 4, 5, 6 and so on
 
 		D2DE19FADE19D815
 
