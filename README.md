@@ -124,7 +124,11 @@ The autobackup setup of Clonezilla is now complete.
 ### Prepare target computer
 
 #### Backup configuration file
-Backup configuration file tells automatic Clonezilla what kind of backup needs to be performed
+Backup configuration file tells automatic Clonezilla what kind of backup needs to be performed.
+It should be localed in the root folder on one of the drives of the target computer:
+
+		/backup.conf
+
 A sample backup file is below:
 
 		4c4c4544-0054-3610-804a-c7c04f444b33
@@ -164,14 +168,14 @@ You can look up partition UUIDs using `sudo blkid` command.
 
 One by one:
 
-- `-q2` is
-- `-j2` is
+- `-q2` is to use partclone to save partition(s) (i.e. partclone > partimage > dd).
+- `-j2` is to use dd to clone the image of the data between MBR (1st sector, i.e. 512 bytes) and 1st partition, which might be useful for some recovery tool.
 - `-nogui` is to disable fancy graphical progress reporting and stick to simple text only output
-- `-z1p` is compression method
+- `-z1p` is compression method using parallel gzip program (pigz) when saving: fast and small image file, good for multi-core or multi-CPU machines.
 - `-i 2000000` is to set the size in MB to split the partition image file into multiple volumes files.
-- `-p poweroff` is to shutdown the target computer after backup
-- `savedisk` is command to backup the entire drive (`saveparts` saves individual partitions)
-- `xps15dev_system` is the name of the target folder for the backup
+- `-p poweroff` is to shutdown the target computer after backup.
+- `savedisk` is command to backup the entire drive (`saveparts` saves individual partitions).
+- `xps15dev_system` is the name of the target folder for the backup.
 
 The esiest way to build this line is to run an interactive Clonezilla session, select all desired parameters and save the resulting command line.
 There is also a command line reference here:  [Man page of ocs-sr](https://clonezilla.org/fine-print-live-doc.php?path=./clonezilla-live/doc/98_ocs_related_command_manpages/01-ocs-sr.doc#google_vignette)
