@@ -141,7 +141,8 @@ Let's review it line by line
 This ID could be looked up with this command: `sudo lshw -quiet -class system | grep configuration | grep uuid`
 
 		$ sudo lshw -quiet -class system | grep configuration | grep uuid
-    configuration: boot=normal chassis=desktop family=Default string sku=Default string uuid=00020003-0004-0005-0006-000700080009
+		configuration: boot=normal chassis=desktop family=Default string sku=Default string uuid=00020003-0004-0005-0006-000700080009
+		
 
 The easiest way to build `backup.conf` file is to boot into interactive Clonezilla, drop into shell instead of starting the backup and look it up there. 
 Clonezilla checks if correct configuration file has been found and ignores the ones with unmatched hardware IDs
