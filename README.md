@@ -142,7 +142,7 @@ This ID could be looked up with this command: `sudo lshw -quiet -class system | 
 
 		$ sudo lshw -quiet -class system | grep configuration | grep uuid
 		configuration: boot=normal chassis=desktop family=Default string sku=Default string uuid=00020003-0004-0005-0006-000700080009
-		
+
 
 The easiest way to build `backup.conf` file is to boot into interactive Clonezilla, drop into shell instead of starting the backup and look it up there. 
 Clonezilla checks if correct configuration file has been found and ignores the ones with unmatched hardware IDs
@@ -155,6 +155,7 @@ Clonezilla checks if correct configuration file has been found and ignores the o
 If the target computer has mulitple disk drives, you can specify on of the partitions on the drives that are not part of the backup.
 Typically this is the partition UUID of the DATA partition of the 2TB backup drive we are building.
 Note that `7B0DFCE74B228860` is UUID of an exFAT partition (windows). Linux ext4 partition UUID will look like `38d9e8cd-deda-4735-ad97-a795665e77fe`
+You can look up partition UUIDs using `sudo blkid` command.
 
 
 ##### Line 3 - Clonezilla command line arguments
