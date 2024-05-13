@@ -168,12 +168,13 @@ One by one:
 - `-j2` is
 - `-nogui` is to disable fancy graphical progress reporting and stick to simple text only output
 - `-z1p` is compression method
-- `-i 2000000` is
+- `-i 2000000` is to set the size in MB to split the partition image file into multiple volumes files.
 - `-p poweroff` is to shutdown the target computer after backup
 - `savedisk` is command to backup the entire drive (`saveparts` saves individual partitions)
 - `xps15dev_system` is the name of the target folder for the backup
 
 The esiest way to build this line is to run an interactive Clonezilla session, select all desired parameters and save the resulting command line.
+There is also a command line reference here:  [Man page of ocs-sr](https://clonezilla.org/fine-print-live-doc.php?path=./clonezilla-live/doc/98_ocs_related_command_manpages/01-ocs-sr.doc#google_vignette)
 
 ##### Line 4, 5, 6 and so on
 
